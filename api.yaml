@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apiserver
+  labels:
+    app: apiserver
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: apiserver
+      labels:
+        app: apiserver
+    spec:
+      containers:
+        - name: apiserver
+          image: fahimabrar/api
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: api-port
+            containerPort: 8080
+            protocol: TCP
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: apiserver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apiserver
+  labels:
+    app: apiserver
+spec:
+  selector:
+    app: apiserver
+  ports:
+    - name: port
+      protocol: TCP
+      port: 8080
+      targetPort: api-port
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-apiserver
+spec:
+  rules:
+    - host: linkedin.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: apiserver
+              servicePort: 8080
+---
+
+# CHECK KEY VALUE OF SELECTOR!!!!!
