@@ -9,7 +9,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Deletes deployment, service and ingress",
 	Run: func(cmd *cobra.Command, args []string) {
-		cgo.DeleteDeployment()
+		cgo.DeleteDeploymentKutil()
 	},
 }
 

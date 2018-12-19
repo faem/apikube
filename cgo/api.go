@@ -6,13 +6,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	extv1beta1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kutilAppsV1 "github.com/appscode/kutil/apps/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
 )
-
+/*
 func CreateDeployment() {
 	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
@@ -70,9 +71,78 @@ func CreateDeployment() {
 	if err != nil {
 		panic(err)
 	}
-}
+}*/
 
-func DeleteDeployment() {
+func CreateDeploymentKutil(){
+	log.Debug("Creating Deployment. . . . .")
+	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		log.Fatalf("Could not get Kubernetes config: %s", err)
+	}
+	kc := kubernetes.NewForConfigOrDie(config)
+
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "apiserver",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app": "apiserver",
+			},
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: int32Ptr(50),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": "apiserver",
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "apiserver",
+					Labels: map[string]string{
+						"app": "apiserver",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:            "apiserver",
+							Image:           "fahimabrar/api",
+							ImagePullPolicy: "IfNotPresent",
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "api-port",
+									ContainerPort: 8080,
+									Protocol:      "TCP",
+								},
+							},
+						},
+					},
+					RestartPolicy: "Always",
+				},
+			},
+		},
+	}
+
+	_ , _, err = kutilAppsV1.CreateOrPatchDeployment(
+		kc,
+		deployment.ObjectMeta,
+		func(d *appsv1.Deployment) *appsv1.Deployment {
+			d = deployment
+			return d
+		},
+	)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Debug("Deployment Created!")
+}
+/*func DeleteDeployment() {
+	log.Debug("Deleting Deployment, Service and Ingress")
+
 	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
@@ -101,6 +171,47 @@ func DeleteDeployment() {
 	}); err != nil {
 		panic(err)
 	}
+	log.Debug("Deletion Competed Successfully!")
+
+}*/
+
+func DeleteDeploymentKutil(){
+	log.Debug("Deleting Deployment, Service and Ingress")
+	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		log.Fatalf("Could not get Kubernetes config: %s", err)
+	}
+	kc := kubernetes.NewForConfigOrDie(config)
+	varAppsV1 := kc.AppsV1()
+	varCoreV1 := kc.CoreV1()
+	varExtensionsV1Beta1 := kc.ExtensionsV1beta1()
+	deletePolicy := metav1.DeletePropagationForeground
+
+	deployment, err := varAppsV1.Deployments("default").Get("apiserver", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+	if err := kutilAppsV1.DeleteDeployment(
+		kc,
+		deployment.ObjectMeta,
+		); err !=nil{
+		panic(err)
+	}
+
+	if err = varCoreV1.Services("default").Delete("apiserver", &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	}); err != nil {
+		panic(err)
+	}
+
+	if err = varExtensionsV1Beta1.Ingresses("default").Delete("ingress-apiserver", &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	}); err != nil {
+		panic(err)
+	}
+	log.Debug("Deletion Competed Successfully!")
 
 }
 
@@ -141,6 +252,7 @@ func CreateService() {
 }
 
 func UpdateDeployment() {
+	log.Debug("Scaling Up deployment from 1 to 5. . . . .")
 	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
@@ -161,9 +273,11 @@ func UpdateDeployment() {
 	if err != nil {
 		panic(err)
 	}
+	log.Debug("Scaling Completed!")
 }
 
 func CreateIngress() {
+	log.Debug("Creating Ingress. . . . .")
 	kubeconfigPath := filepath.Join(os.Getenv("HOME"), ".kube/config")
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
@@ -204,6 +318,7 @@ func CreateIngress() {
 	if err != nil {
 		panic(err)
 	}
+	log.Debug("Ingress Created!")
 
 }
 

@@ -9,7 +9,8 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Creates a deployment",
 	Run: func(cmd *cobra.Command, args []string) {
-		cgo.CreateDeployment()
+		//cgo.CreateDeployment()
+		cgo.CreateDeploymentKutil()
 	},
 }
 

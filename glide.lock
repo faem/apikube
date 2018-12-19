@@ -1,16 +1,23 @@
 hash: 83f208d14edc132f5412dc764e261d0fcd561aaad5ac7bb10905651e5058e5be
-updated: 2018-12-18T14:39:25.798581508+06:00
+updated: 2018-12-19T16:12:20.929273028+06:00
 imports:
 - name: github.com/appscode/go
   version: 584aaa73af837f112c0a471be398ea837341c330
   subpackages:
   - context
   - log
+  - types
 - name: github.com/appscode/kutil
   version: d9fb2e606bf2c196a8cd8cff13097f531d686a44
   subpackages:
   - apps/v1
   - core/v1
+- name: github.com/appscode/mergo
+  version: 9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4
+- name: github.com/davecgh/go-spew
+  version: 782f4967f2dc4564575ca782fe2d04090b5faca8
+  subpackages:
+  - spew
 - name: github.com/gogo/protobuf
   version: 342cbe0a04158f6dcb03ca0079991a51a4248c02
   subpackages:
@@ -54,6 +61,8 @@ imports:
   version: 94122c33edd36123c84d5368cfb2b69df93a0ec8
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
+- name: github.com/pkg/errors
+  version: 059132a15dd08d6704c67711dae0cf35ab991756
 - name: github.com/spf13/cobra
   version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
 - name: github.com/spf13/pflag
@@ -170,16 +179,19 @@ imports:
   - pkg/util/framer
   - pkg/util/intstr
   - pkg/util/json
+  - pkg/util/mergepatch
   - pkg/util/naming
   - pkg/util/net
   - pkg/util/runtime
   - pkg/util/sets
+  - pkg/util/strategicpatch
   - pkg/util/validation
   - pkg/util/validation/field
   - pkg/util/wait
   - pkg/util/yaml
   - pkg/version
   - pkg/watch
+  - third_party/forked/golang/json
   - third_party/forked/golang/reflect
 - name: k8s.io/client-go
   version: e64494209f554a6723674bd494d69445fb76a1d4
@@ -241,6 +253,10 @@ imports:
   - util/integer
 - name: k8s.io/klog
   version: 8139d8cb77af419532b33dfa7dd09fbc5f1d344f
+- name: k8s.io/kube-openapi
+  version: c59034cc13d587f5ef4e85ca0ade0c1866ae8e1d
+  subpackages:
+  - pkg/util/proto
 - name: sigs.k8s.io/yaml
   version: fd68e9863619f6ec2fdd8625fe1f02e7c877e480
 testImports: []
